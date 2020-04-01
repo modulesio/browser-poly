@@ -90,6 +90,7 @@ const args = (() => {
       boolean: [
         'version',
         'home',
+        'help',
         'log',
         'perf',
         'performance',
@@ -134,6 +135,7 @@ const args = (() => {
     return {
       version: minimistArgs.version,
       url: minimistArgs._[0] || '',
+      help: minimistArgs.help || false,
       home: minimistArgs.home,
       log: minimistArgs.log,
       webgl: minimistArgs.webgl || '2',
@@ -150,12 +152,79 @@ const args = (() => {
       nogl: minimistArgs.nogl,
       headless: minimistArgs.headless,
       uncapped: minimistArgs.uncapped,
-      onbeforeload: minimistArgs.onbeforeload
+      onbeforeload: minimistArgs.onbeforeload,
     };
   } else {
     return {};
   }
 })();
+
+const helpText = `Exokit v${version}
+
+Usage: exokit [flags] <url>
+
+Flags:
+--help
+Display's this text and exits.
+
+--version, -v
+Prints current exokit version.
+
+--home, -h
+stub
+
+--log, -l
+stub
+
+--perf,
+stub
+
+--performance, --perf
+stub
+
+--frame, -f
+stub
+
+--minimalFrame, -m
+stub
+
+--tab, -t
+stub
+
+--quit, -q
+stub
+
+--blit, -b
+stub
+
+--require, -u
+stub
+
+--nogl, -n
+stub
+
+--headless, -e
+stub
+
+--uncapped, -u
+stub
+
+--webgl [option], -w [option]
+stub
+
+--xr [option], -x [option]
+stub
+
+--size [option], -s [option]
+stub
+
+--replace [option], -r [option]
+stub
+
+--onbeforeload [option]
+stub
+
+`;
 
 core.setArgs(args);
 core.setVersion(version);
@@ -1616,6 +1685,10 @@ if (require.main === module) {
 
   if (args.version) {
     console.log(version);
+    process.exit(0);
+  }
+  if (args.help){
+    console.log(helpText);
     process.exit(0);
   }
   if (args.size) {
