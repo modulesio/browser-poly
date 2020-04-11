@@ -194,6 +194,9 @@ const _makeWindow = (options = {}, handlers = {}) => {
   window.on('framebuffer', e => {
     window.framebuffer = e;
   });
+  window.on('xrMode', e => {
+    options.onxrmode && options.onxrmode(e);
+  });
   window.on('hapticPulse', e => {
     options.onhapticpulse && options.onhapticpulse(e);
   });

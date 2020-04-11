@@ -162,6 +162,14 @@ function initDocument (document, window) {
   }
 
   process.nextTick(async () => {
+    const _tryDispatchEvent = (target, event) => {
+      try {
+        target.dispatchEvent(event);
+      } catch(err) {
+        console.warn(err);
+      }
+    };
+    
     if (body) {
       const bodyChildNodes = body.childNodes;
       body.childNodes = new window.NodeList();
@@ -173,7 +181,11 @@ function initDocument (document, window) {
       }
 
       body.childNodes = bodyChildNodes;
-      body._emit('children', Array.from(bodyChildNodes), [], null, null);
+      try {
+        body._emit('children', Array.from(bodyChildNodes), [], null, null);
+      } catch(err) {
+        console.warn(err);
+      }
 
       try {
         await GlobalContext._runHtml(document.body, window);
@@ -182,9 +194,9 @@ function initDocument (document, window) {
       }
 
       document.readyState = 'interactive';
-      document.dispatchEvent(new Event('readystatechange', {target: document}));
+      _tryDispatchEvent(document, new Event('readystatechange', {target: document}));
 
-      document.dispatchEvent(new Event('DOMContentLoaded', {
+      _tryDispatchEvent(document, new Event('DOMContentLoaded', {
         target: document,
         bubbles: true,
       }));
@@ -196,19 +208,24 @@ function initDocument (document, window) {
       }
 
       document.readyState = 'interactive';
-      document.dispatchEvent(new Event('readystatechange', {target: document}));
+      _tryDispatchEvent(document, new Event('readystatechange', {target: document}));
 
-      document.dispatchEvent(new Event('DOMContentLoaded', {
+      _tryDispatchEvent(document, new Event('DOMContentLoaded', {
         target: document,
         bubbles: true,
       }));
     }
 
     document.readyState = 'complete';
-    document.dispatchEvent(new Event('readystatechange', {target: document}));
+    _tryDispatchEvent(document, new Event('readystatechange', {target: document}));
 
     document.dispatchEvent(new Event('load', {target: document}));
-    window.dispatchEvent(new Event('load', {target: window}));
+    _tryDispatchEvent(window, new Event('load', {target: window}));
+
+    parentPort.postMessage({
+      method: 'xrMode',
+      xr: GlobalContext.requestedXr,
+    });
   });
 
   return document;

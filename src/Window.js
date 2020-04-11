@@ -101,6 +101,7 @@ GlobalContext.id = id;
 GlobalContext.args = args;
 GlobalContext.version = version;
 GlobalContext.baseUrl = options.baseUrl;
+GlobalContext.requestedXr = false;
 
 const {_parseDocument, _parseDocumentAst, getBoundDocumentElements, DocumentType, DOMImplementation, initDocument} = require('./Document');
 const {
@@ -781,7 +782,12 @@ const _makeRequestAnimationFrame = window => (fn, priority = 0) => {
       return _parseDocumentAst(htmlAst, window, false);
     }
   };
-  window.addEventListener = EventTarget.prototype.addEventListener.bind(window);
+  window.addEventListener = function(e, fn, opts) {
+    if (e === 'vrdisplayactivate') {
+      GlobalContext.requestedXr = true;
+    }
+    return EventTarget.prototype.addEventListener.apply(window, arguments);
+  };
   window.removeEventListener = EventTarget.prototype.removeEventListener.bind(window);
   window.dispatchEvent = EventTarget.prototype.dispatchEvent.bind(window);
   window.Image = HTMLImageElement;
@@ -1150,6 +1156,8 @@ const _makeRequestAnimationFrame = window => (fn, priority = 0) => {
 
   const _makeMrDisplays = () => {
     const _onrequestpresent = async () => {
+      GlobalContext.requestedXr = true;
+      
       // if (!GlobalContext.xrState.isPresenting[0]) {
         await new Promise((accept, reject) => {
           vrPresentState.responseAccepts.push(accept);

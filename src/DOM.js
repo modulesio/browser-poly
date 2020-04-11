@@ -2221,6 +2221,13 @@ class HTMLIFrameElement extends HTMLSrcableElement {
                   onrequest(req) {
                     parentPort.postMessage(req);
                   },
+                  onxrmode(event) {
+                    this.dispatchEvent(new CustomEvent('xrmode', {
+                      detail: {
+                        xr: event.xr,
+                      },
+                    }));
+                  },
                   onhapticpulse(event) {
                     parentPort.postMessage({
                       method: 'emit',
