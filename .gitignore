@@ -16,3 +16,4 @@ android/app/build/
 android/app/src/main/arm64-v8a/
 android/build/
 *.sw[pomnlk]
+src/DatArchive.bundle.js

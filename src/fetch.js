@@ -4,8 +4,12 @@ const utils = require('./utils');
 const windowFetch = require('window-fetch');
 const {Response} = windowFetch;
 const GlobalContext = require('./GlobalContext');
+const { DatArchive } = require('../build/js/DatArchive.bundle.js');
+const datFetch = require('dat-fetch')(DatArchive);
 
-const protocols = {};
+const protocols = {
+  dat: datFetch
+};
 ['http', 'https', 'file', 'data', 'blob'].forEach(p => {
   protocols[p] = windowFetch;
 });
@@ -26,7 +30,8 @@ async function fetch(u, options) {
       });
       return new Response(body);
     } else {
-      return _protocolFetch(utils._normalizeUrl(u, GlobalContext.baseUrl), options);
+      const normalized = utils._normalizeUrl(u, GlobalContext.baseUrl)
+      return _protocolFetch(normalized, options);
     }
   } else {
     // Fetch is being called with a Request object

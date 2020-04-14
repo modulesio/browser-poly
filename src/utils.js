@@ -19,6 +19,7 @@ function _getBaseUrl(u, currentBaseUrl = '') {
       protocol: parsedUrl.protocol || 'http:',
       host: parsedUrl.host || '127.0.0.1',
       pathname: parsedUrl.pathname.replace(/\/[^\/]*\.[^\/]*$/, '') || '/',
+      slashes: true, // This is needed to have the `://` for all protocols.
     });
   }
   if (!/\/$/.test(result) && !/\/[^\/]*?\.[^\/]*?$/.test(result)) {
@@ -35,7 +36,7 @@ function _normalizeUrl(src, baseUrl) {
   /* if (!/^(?:\/|[a-z]+:)/.test(src)) {
     src = baseUrl + (!/\/$/.test(baseUrl) ? '/' : '') + src;
   } */
-  if (!/^(?:https?|data|blob):/.test(src)) {
+  if (!/^(?:https?|data|blob|dat):/.test(src)) {
     return new URL(src, baseUrl).href
       .replace(/^(file:\/\/)\/([a-z]:.*)$/i, '$1$2');
   } else {
@@ -82,7 +83,7 @@ const _elementSetter = (self, attribute, cb) => {
     self.removeEventListener(attribute, listener);
     listener[symbols.listenerSymbol] = false;
   }
-  
+
   if (typeof cb === 'function') {
     self.addEventListener(attribute, cb);
     cb[symbols.listenerSymbol] = true;
