@@ -48,6 +48,7 @@ protected:
 
   friend class AudioBufferSourceNode;
   friend class ScriptProcessorNode;
+  friend class ConvolverNode;
 };
 
 class AudioBufferSourceNode : public AudioNode {

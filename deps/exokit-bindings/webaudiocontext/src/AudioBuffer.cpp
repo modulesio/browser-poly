@@ -319,14 +319,18 @@ NAN_METHOD(AudioBufferSourceNode::New) {
 NAN_METHOD(AudioBufferSourceNode::Start) {
   // Nan::HandleScope scope;
 
+  double when = info[0]->IsNumber() ? TO_DOUBLE(info[0]) : 0;
+
   AudioBufferSourceNode *audioBufferSourceNode = ObjectWrap::Unwrap<AudioBufferSourceNode>(info.This());
-  ((lab::FinishableSourceNode *)audioBufferSourceNode->audioNode.get())->start(0);
+  ((lab::FinishableSourceNode *)audioBufferSourceNode->audioNode.get())->start(when);
 }
 NAN_METHOD(AudioBufferSourceNode::Stop) {
   // Nan::HandleScope scope;
 
+	double when = info[0]->IsNumber() ? TO_DOUBLE(info[0]) : 0;
+
   AudioBufferSourceNode *audioBufferSourceNode = ObjectWrap::Unwrap<AudioBufferSourceNode>(info.This());
-  ((lab::FinishableSourceNode *)audioBufferSourceNode->audioNode.get())->stop(0);
+  ((lab::FinishableSourceNode *)audioBufferSourceNode->audioNode.get())->stop(when);
 }
 NAN_GETTER(AudioBufferSourceNode::BufferGetter) {
   // Nan::HandleScope scope;

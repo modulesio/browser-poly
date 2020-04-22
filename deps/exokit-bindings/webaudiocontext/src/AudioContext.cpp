@@ -26,7 +26,29 @@ AudioContext::AudioContext(float sampleRate) {
 
 AudioContext::~AudioContext() {}
 
-Local<Object> AudioContext::Initialize(Isolate *isolate, Local<Value> audioListenerCons, Local<Value> audioSourceNodeCons, Local<Value> audioDestinationNodeCons, Local<Value> gainNodeCons, Local<Value> analyserNodeCons, Local<Value> pannerNodeCons, Local<Value> audioBufferCons, Local<Value> audioBufferSourceNodeCons, Local<Value> audioProcessingEventCons, Local<Value> stereoPannerNodeCons, Local<Value> oscillatorNodeCons, Local<Value> scriptProcessorNodeCons, Local<Value> mediaStreamTrackCons, Local<Value> microphoneMediaStreamCons) {
+Local<Object> AudioContext::Initialize(
+	Isolate *isolate, 
+	Local<Value> audioListenerCons, 
+	Local<Value> audioSourceNodeCons, 
+	Local<Value> audioDestinationNodeCons, 
+	Local<Value> gainNodeCons, 
+	Local<Value> analyserNodeCons, 
+	Local<Value> biquadFilterNodeCons, 
+	Local<Value> channelMergerNodeCons,
+	Local<Value> channelSplitterNodeCons,
+	Local<Value> convolverNodeCons,
+	Local<Value> delayNodeCons,
+	Local<Value> dynamicsCompressNodeCons, 
+	Local<Value> pannerNodeCons, 
+	Local<Value> audioBufferCons, 
+	Local<Value> audioBufferSourceNodeCons, 
+	Local<Value> audioProcessingEventCons, 
+	Local<Value> stereoPannerNodeCons, 
+	Local<Value> oscillatorNodeCons, 
+	Local<Value> scriptProcessorNodeCons,
+	Local<Value> waveShaperNodeCons,
+	Local<Value> mediaStreamTrackCons, 
+	Local<Value> microphoneMediaStreamCons) {
 #if defined(ANDROID) || defined(LUMIN)
   lab::SetGenericFunctions(
     adgCreate,
@@ -58,6 +80,12 @@ Local<Object> AudioContext::Initialize(Isolate *isolate, Local<Value> audioListe
   Nan::SetMethod(proto, "createMediaStreamTrackSource", CreateMediaStreamTrackSource);
   Nan::SetMethod(proto, "createGain", CreateGain);
   Nan::SetMethod(proto, "createAnalyser", CreateAnalyser);
+  Nan::SetMethod(proto, "createBiquadFilter", CreateBiquadFilter);
+  Nan::SetMethod(proto, "createChannelMerger", CreateChannelMerger);
+  Nan::SetMethod(proto, "createChannelSplitter", CreateChannelSplitter);
+  Nan::SetMethod(proto, "createConvolver", CreateConvolver);
+  Nan::SetMethod(proto, "createDelay", CreateDelay);
+  Nan::SetMethod(proto, "createDynamicsCompressor", CreateDynamicsCompressor);
   Nan::SetMethod(proto, "createPanner", CreatePanner);
   Nan::SetMethod(proto, "createStereoPanner", CreateStereoPanner);
   Nan::SetMethod(proto, "createOscillator", CreateOscillator);
@@ -65,6 +93,7 @@ Local<Object> AudioContext::Initialize(Isolate *isolate, Local<Value> audioListe
   Nan::SetMethod(proto, "createEmptyBuffer", CreateEmptyBuffer);
   Nan::SetMethod(proto, "createBufferSource", CreateBufferSource);
   Nan::SetMethod(proto, "createScriptProcessor", CreateScriptProcessor);
+  Nan::SetMethod(proto, "createWaveShaper", CreateWaveShaper);
   Nan::SetMethod(proto, "suspend", Suspend);
   Nan::SetMethod(proto, "resume", Resume);
   Nan::SetMethod(proto, "close", Close);
@@ -78,6 +107,12 @@ Local<Object> AudioContext::Initialize(Isolate *isolate, Local<Value> audioListe
   ctorFn->Set(JS_STR("AudioDestinationNode"), audioDestinationNodeCons);
   ctorFn->Set(JS_STR("GainNode"), gainNodeCons);
   ctorFn->Set(JS_STR("AnalyserNode"), analyserNodeCons);
+  ctorFn->Set(JS_STR("BiquadFilterNode"), biquadFilterNodeCons);
+  ctorFn->Set(JS_STR("ChannelMergerNode"), channelMergerNodeCons);
+  ctorFn->Set(JS_STR("ChannelSplitterNode"), channelSplitterNodeCons);
+  ctorFn->Set(JS_STR("ConvolverNode"), convolverNodeCons);
+  ctorFn->Set(JS_STR("DelayNode"), delayNodeCons);
+  ctorFn->Set(JS_STR("DynamicsCompressorNode"), dynamicsCompressNodeCons);
   ctorFn->Set(JS_STR("PannerNode"), pannerNodeCons);
   ctorFn->Set(JS_STR("StereoPannerNode"), stereoPannerNodeCons);
   ctorFn->Set(JS_STR("OscillatorNode"), oscillatorNodeCons);
@@ -85,6 +120,7 @@ Local<Object> AudioContext::Initialize(Isolate *isolate, Local<Value> audioListe
   ctorFn->Set(JS_STR("AudioBufferSourceNode"), audioBufferSourceNodeCons);
   ctorFn->Set(JS_STR("AudioProcessingEvent"), audioProcessingEventCons);
   ctorFn->Set(JS_STR("ScriptProcessorNode"), scriptProcessorNodeCons);
+  ctorFn->Set(JS_STR("WaveShaperNode"), waveShaperNodeCons);
   ctorFn->Set(JS_STR("MediaStreamTrack"), mediaStreamTrackCons);
   ctorFn->Set(JS_STR("MicrophoneMediaStream"), microphoneMediaStreamCons);
   ctorFn->Set(JS_STR("Destroy"), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Destroy)).ToLocalChecked());
@@ -130,12 +166,70 @@ Local<Object> AudioContext::CreateGain(Local<Function> gainNodeConstructor, Loca
 }
 
 Local<Object> AudioContext::CreateAnalyser(Local<Function> analyserNodeConstructor, Local<Object> audioContextObj) {
-  Local<Value> argv[] = {
-    audioContextObj,
-  };
-  Local<Object> analyserNodeObj = analyserNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv)/sizeof(argv[0]), argv).ToLocalChecked();
+	Local<Value> argv[] = {
+	  audioContextObj,
+	};
+	Local<Object> analyserNodeObj = analyserNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv) / sizeof(argv[0]), argv).ToLocalChecked();
 
-  return analyserNodeObj;
+	return analyserNodeObj;
+}
+
+Local<Object> AudioContext::CreateBiquadFilter(Local<Function> biquadFilterNodeConstructor, Local<Object> audioContextObj) {
+	Local<Value> argv[] = {
+	  audioContextObj,
+	};
+	Local<Object> biquadFilterNodeObj = biquadFilterNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv) / sizeof(argv[0]), argv).ToLocalChecked();
+
+	return biquadFilterNodeObj;
+}
+
+Local<Object> AudioContext::CreateChannelMerger(Local<Function> channelMergerNodeConstructor, uint32_t numberOfInputs, Local<Object> audioContextObj) {
+	Local<Value> argv[] = {
+	 JS_INT(numberOfInputs),
+	  audioContextObj,
+	};
+	Local<Object> channelMergerNodeObj = channelMergerNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv) / sizeof(argv[0]), argv).ToLocalChecked();
+
+	return channelMergerNodeObj;
+}
+
+Local<Object> AudioContext::CreateChannelSplitter(Local<Function> channelSplitterNodeConstructor, uint32_t numberOfOutputs, Local<Object> audioContextObj) {
+	Local<Value> argv[] = {
+	 JS_INT(numberOfOutputs),
+	  audioContextObj,
+	};
+	Local<Object> channelSplitterNodeObj = channelSplitterNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv) / sizeof(argv[0]), argv).ToLocalChecked();
+
+	return channelSplitterNodeObj;
+}
+
+Local<Object> AudioContext::CreateConvolver(Local<Function> convolverNodeConstructor, Local<Object> audioContextObj) {
+	Local<Value> argv[] = {
+	  audioContextObj,
+	};
+	Local<Object> convolverNodeObj = convolverNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv) / sizeof(argv[0]), argv).ToLocalChecked();
+
+	return convolverNodeObj;
+}
+
+Local<Object> AudioContext::CreateDelay(Local<Function> delayNodeConstructor, double maxDelayTime, float sampleRate, Local<Object> audioContextObj) {
+	Local<Value> argv[] = {
+	 JS_NUM(maxDelayTime),
+	 JS_NUM(sampleRate),
+	  audioContextObj,
+	};
+	Local<Object> delayNodeObj = delayNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv) / sizeof(argv[0]), argv).ToLocalChecked();
+
+	return delayNodeObj;
+}
+
+Local<Object> AudioContext::CreateDynamicsCompressor(Local<Function> dynamicsCompressorNodeConstructor, Local<Object> audioContextObj) {
+	Local<Value> argv[] = {
+	  audioContextObj,
+	};
+	Local<Object> dynamicsCompressorNodeObj = dynamicsCompressorNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv) / sizeof(argv[0]), argv).ToLocalChecked();
+
+	return dynamicsCompressorNodeObj;
 }
 
 Local<Object> AudioContext::CreatePanner(Local<Function> pannerNodeConstructor, Local<Object> audioContextObj) {
@@ -204,6 +298,15 @@ Local<Object> AudioContext::CreateScriptProcessor(Local<Function> scriptProcesso
   Local<Object> scriptProcessorNodeObj = scriptProcessorNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv)/sizeof(argv[0]), argv).ToLocalChecked();
 
   return scriptProcessorNodeObj;
+}
+
+Local<Object> AudioContext::CreateWaveShaper(Local<Function> waveShaperNodeConstructor, Local<Object> audioContextObj) {
+	Local<Value> argv[] = {
+	  audioContextObj,
+	};
+	Local<Object> waveShaperNodeObj = waveShaperNodeConstructor->NewInstance(Isolate::GetCurrent()->GetCurrentContext(), sizeof(argv) / sizeof(argv[0]), argv).ToLocalChecked();
+
+	return waveShaperNodeObj;
 }
 
 void AudioContext::Suspend() {
@@ -313,15 +416,100 @@ NAN_METHOD(AudioContext::CreateGain) {
 }
 
 NAN_METHOD(AudioContext::CreateAnalyser) {
-  // Nan::HandleScope scope;
+	// Nan::HandleScope scope;
 
-  Local<Object> audioContextObj = info.This();
-  AudioContext *audioContext = ObjectWrap::Unwrap<AudioContext>(audioContextObj);
+	Local<Object> audioContextObj = info.This();
+	AudioContext *audioContext = ObjectWrap::Unwrap<AudioContext>(audioContextObj);
 
-  Local<Function> analyserNodeConstructor = Local<Function>::Cast(JS_OBJ(audioContextObj->Get(JS_STR("constructor")))->Get(JS_STR("AnalyserNode")));
-  Local<Object> analyserNodeObj = audioContext->CreateAnalyser(analyserNodeConstructor, audioContextObj);
+	Local<Function> analyserNodeConstructor = Local<Function>::Cast(JS_OBJ(audioContextObj->Get(JS_STR("constructor")))->Get(JS_STR("AnalyserNode")));
+	Local<Object> analyserNodeObj = audioContext->CreateAnalyser(analyserNodeConstructor, audioContextObj);
 
-  info.GetReturnValue().Set(analyserNodeObj);
+	info.GetReturnValue().Set(analyserNodeObj);
+}
+
+NAN_METHOD(AudioContext::CreateBiquadFilter) {
+	// Nan::HandleScope scope;
+
+	Local<Object> audioContextObj = info.This();
+	AudioContext *audioContext = ObjectWrap::Unwrap<AudioContext>(audioContextObj);
+
+	Local<Function> biquadFilterNodeConstructor = Local<Function>::Cast(JS_OBJ(audioContextObj->Get(JS_STR("constructor")))->Get(JS_STR("BiquadFilterNode")));
+	Local<Object> biquadFilterNodeObj = audioContext->CreateBiquadFilter(biquadFilterNodeConstructor, audioContextObj);
+
+	info.GetReturnValue().Set(biquadFilterNodeObj);
+}
+
+NAN_METHOD(AudioContext::CreateChannelMerger) {
+	// Nan::HandleScope scope;
+
+	uint32_t numberOfInputs = info[0]->IsNumber() ? TO_UINT32(info[0]) : 6;
+
+	Local<Object> audioContextObj = info.This();
+	AudioContext *audioContext = ObjectWrap::Unwrap<AudioContext>(audioContextObj);
+
+	Local<Function> channelMergerNodeConstructor = Local<Function>::Cast(JS_OBJ(audioContextObj->Get(JS_STR("constructor")))->Get(JS_STR("ChannelMergerNode")));
+	Local<Object> channelMergerNodeObj = audioContext->CreateChannelMerger(channelMergerNodeConstructor, numberOfInputs, audioContextObj);
+
+	info.GetReturnValue().Set(channelMergerNodeObj);
+}
+
+NAN_METHOD(AudioContext::CreateChannelSplitter) {
+	// Nan::HandleScope scope;
+
+	uint32_t numberOfOutputs = info[0]->IsNumber() ? TO_UINT32(info[0]) : 6;
+
+	Local<Object> audioContextObj = info.This();
+	AudioContext *audioContext = ObjectWrap::Unwrap<AudioContext>(audioContextObj);
+
+	Local<Function> channelSplitterNodeConstructor = Local<Function>::Cast(JS_OBJ(audioContextObj->Get(JS_STR("constructor")))->Get(JS_STR("ChannelSplitterNode")));
+	Local<Object> channelSplitterNodeObj = audioContext->CreateChannelSplitter(channelSplitterNodeConstructor, numberOfOutputs, audioContextObj);
+
+	info.GetReturnValue().Set(channelSplitterNodeObj);
+}
+
+NAN_METHOD(AudioContext::CreateConvolver) {
+	// Nan::HandleScope scope;
+
+	Local<Object> audioContextObj = info.This();
+	AudioContext *audioContext = ObjectWrap::Unwrap<AudioContext>(audioContextObj);
+
+	Local<Function> convolverNodeConstructor = Local<Function>::Cast(JS_OBJ(audioContextObj->Get(JS_STR("constructor")))->Get(JS_STR("ConvolverNode")));
+	Local<Object> convolverNodeObj = audioContext->CreateConvolver(convolverNodeConstructor, audioContextObj);
+
+	info.GetReturnValue().Set(convolverNodeObj);
+}
+
+NAN_METHOD(AudioContext::CreateDelay) {
+	// Nan::HandleScope scope;
+
+	Local<Object> audioContextObj = info.This();
+	AudioContext *audioContext = ObjectWrap::Unwrap<AudioContext>(audioContextObj);
+
+	shared_ptr<lab::AudioContext> labAudioContext = *(shared_ptr<lab::AudioContext> *)(&audioContext->audioContext);
+
+	// lab sound has 2 arguments whereas web audio has one.  Also, the arg in both
+	// is the second arg in lab sound.  Switching order, so it is first.
+	double maxDelayTime = info[0]->IsNumber() ? TO_DOUBLE(info[0]) : 1;
+
+	// This one uses the context's sample rate, when not specified
+	float sampleRate = info[1]->IsNumber() ? TO_FLOAT(info[1]) : labAudioContext->sampleRate();
+
+	Local<Function> delayNodeConstructor = Local<Function>::Cast(JS_OBJ(audioContextObj->Get(JS_STR("constructor")))->Get(JS_STR("DelayNode")));
+	Local<Object> delayNodeObj = audioContext->CreateDelay(delayNodeConstructor, maxDelayTime, sampleRate, audioContextObj);
+
+	info.GetReturnValue().Set(delayNodeObj);
+}
+
+NAN_METHOD(AudioContext::CreateDynamicsCompressor) {
+	// Nan::HandleScope scope;
+
+	Local<Object> audioContextObj = info.This();
+	AudioContext *audioContext = ObjectWrap::Unwrap<AudioContext>(audioContextObj);
+
+	Local<Function> dynamicsCompressorNodeConstructor = Local<Function>::Cast(JS_OBJ(audioContextObj->Get(JS_STR("constructor")))->Get(JS_STR("DynamicsCompressorNode")));
+	Local<Object> dynamicsCompressorNodeObj = audioContext->CreateDynamicsCompressor(dynamicsCompressorNodeConstructor, audioContextObj);
+
+	info.GetReturnValue().Set(dynamicsCompressorNodeObj);
 }
 
 NAN_METHOD(AudioContext::CreatePanner) {
@@ -420,6 +608,19 @@ NAN_METHOD(AudioContext::CreateScriptProcessor) {
 
   info.GetReturnValue().Set(scriptProcessorNodeObj);
 }
+
+NAN_METHOD(AudioContext::CreateWaveShaper) {
+	// Nan::HandleScope scope;
+
+	Local<Object> audioContextObj = info.This();
+	AudioContext *audioContext = ObjectWrap::Unwrap<AudioContext>(audioContextObj);
+
+	Local<Function> waveShaperNodeConstructor = Local<Function>::Cast(JS_OBJ(audioContextObj->Get(JS_STR("constructor")))->Get(JS_STR("WaveShaperNode")));
+	Local<Object> waveShaperNodeObj = audioContext->CreateGain(waveShaperNodeConstructor, audioContextObj);
+
+	info.GetReturnValue().Set(waveShaperNodeObj);
+}
+
 
 NAN_METHOD(AudioContext::Suspend) {
   // Nan::HandleScope scope;

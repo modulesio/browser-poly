@@ -55,10 +55,18 @@ NAN_METHOD(AudioNode::Connect) {
       constructorName->StrictEquals(JS_STR("AudioSourceNode")) ||
       constructorName->StrictEquals(JS_STR("AudioDestinationNode")) ||
       constructorName->StrictEquals(JS_STR("GainNode")) ||
-      constructorName->StrictEquals(JS_STR("AnalyserNode")) ||
-      constructorName->StrictEquals(JS_STR("PannerNode")) ||
+	  constructorName->StrictEquals(JS_STR("AnalyserNode")) ||
+	  constructorName->StrictEquals(JS_STR("BiquadFilterNode")) ||
+	  constructorName->StrictEquals(JS_STR("ChannelMergerNode")) ||
+	  constructorName->StrictEquals(JS_STR("ChannelSplitterNode")) ||
+	  constructorName->StrictEquals(JS_STR("ConvolverNode")) ||
+	  constructorName->StrictEquals(JS_STR("DelayNode")) ||
+	  constructorName->StrictEquals(JS_STR("DynamicsCompressorNode")) ||
+	  constructorName->StrictEquals(JS_STR("OscillatorNode")) ||
+	  constructorName->StrictEquals(JS_STR("PannerNode")) ||
       constructorName->StrictEquals(JS_STR("StereoPannerNode")) ||
-      constructorName->StrictEquals(JS_STR("ScriptProcessorNode"))
+      constructorName->StrictEquals(JS_STR("ScriptProcessorNode")) ||
+	  constructorName->StrictEquals(JS_STR("WaveShaperNode"))
     ) {
       unsigned int outputIndex = info[1]->IsNumber() ? TO_UINT32(info[1]) : 0;
       unsigned int inputIndex = info[2]->IsNumber() ? TO_UINT32(info[2]) : 0;
@@ -149,14 +157,22 @@ NAN_METHOD(AudioNode::Disconnect) {
       Local<Value> constructorName = JS_OBJ(JS_OBJ(info[0])->Get(JS_STR("constructor")))->Get(JS_STR("name"));
 
       if (
-        constructorName->StrictEquals(JS_STR("AudioSourceNode")) ||
-        constructorName->StrictEquals(JS_STR("AudioDestinationNode")) ||
-        constructorName->StrictEquals(JS_STR("GainNode")) ||
-        constructorName->StrictEquals(JS_STR("AnalyserNode")) ||
-        constructorName->StrictEquals(JS_STR("PannerNode")) ||
-        constructorName->StrictEquals(JS_STR("StereoPannerNode")) ||
-        constructorName->StrictEquals(JS_STR("ScriptProcessorNode"))
-      ) {
+		constructorName->StrictEquals(JS_STR("AudioSourceNode")) ||
+		constructorName->StrictEquals(JS_STR("AudioDestinationNode")) ||
+		constructorName->StrictEquals(JS_STR("GainNode")) ||
+		constructorName->StrictEquals(JS_STR("AnalyserNode")) ||
+		constructorName->StrictEquals(JS_STR("BiquadFilterNode")) ||
+		constructorName->StrictEquals(JS_STR("ChannelMergerNode")) ||
+		constructorName->StrictEquals(JS_STR("ChannelSplitterNode")) ||
+		constructorName->StrictEquals(JS_STR("ConvolverNode")) ||
+		constructorName->StrictEquals(JS_STR("DelayNode")) ||
+		constructorName->StrictEquals(JS_STR("DynamicsCompressorNode")) ||
+		constructorName->StrictEquals(JS_STR("OscillatorNode")) ||
+		constructorName->StrictEquals(JS_STR("PannerNode")) ||
+		constructorName->StrictEquals(JS_STR("StereoPannerNode")) ||
+		constructorName->StrictEquals(JS_STR("ScriptProcessorNode")) ||
+		constructorName->StrictEquals(JS_STR("WaveShaperNode"))
+		  ) {
         Local<Object> srcAudioNodeObj = info.This();
         AudioNode *srcAudioNode = ObjectWrap::Unwrap<AudioNode>(srcAudioNodeObj);
         shared_ptr<lab::AudioNode> srcLabAudioNode = srcAudioNode->audioNode;

@@ -46,6 +46,9 @@ protected:
   friend class StereoPannerNode;
   friend class OscillatorNode;
   friend class AudioBufferSourceNode;
+  friend class DynamicsCompressorNode;
+  friend class BiquadFilterNode;
+  friend class DelayNode;
 };
 
 }
