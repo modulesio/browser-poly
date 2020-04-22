@@ -348,13 +348,48 @@ void CanvasRenderingContext2D::StrokeText(const std::string &text, float x, floa
 }
 
 void CanvasRenderingContext2D::Resize(unsigned int w, unsigned int h) {
+  GLint drawFboId = 0, readFboId = 0;
+  glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFboId);
+  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFboId);
+  
+  std::cout << "framebuffer bindings " << drawFboId << " " << readFboId << std::endl; // XXX not needed due to context reset
+  
+  GLuint fbos[2];
+  glGenFramebuffers(2, fbos);
+  
+  GLuint oldTex = tex;
+  glGenTextures(1, &tex);
+  GLuint newTex = tex;
+  
+  unsigned int oldWidth = GetWidth();
+  unsigned int oldHeight = GetHeight();
+  unsigned int newWidth = w;
+  unsigned int newHeight = w;
+  
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, fbos[0]);
+  glFramebufferTexture2D(GL_READ_FRAMEBUFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, oldTex, 0);
+  
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbos[1]);
+  glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, newTex, 0);
+  
   glBindTexture(GL_TEXTURE_2D, tex);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  
+  glBlitFramebuffer(
+    0, 0,
+    oldWidth, oldHeight,
+    0, 0,
+    newWidth, newHeight,
+    GL_COLOR_BUFFER_BIT,
+    GL_LINEAR);
+  
+  glDeleteFramebuffers(2, fbos);
+  glDeleteTextures(1, &oldTex);
   
   grContext->resetContext();
   
   GrGLTextureInfo glTexInfo;
-  glTexInfo.fID = tex;
+  glTexInfo.fID = newTex;
   glTexInfo.fTarget = GL_TEXTURE_2D;
   glTexInfo.fFormat = GL_RGBA8;
   
