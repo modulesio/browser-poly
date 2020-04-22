@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const url = require('url');
-
 const mkdirp = require('mkdirp');
 const parseIntStrict = require('parse-int');
 
@@ -29,6 +28,7 @@ function _getBaseUrl(u, currentBaseUrl = '') {
 module.exports._getBaseUrl = _getBaseUrl;
 
 function _normalizeUrl(src, baseUrl) {
+  console.warn('_normalizeUrl:'+JSON.stringify({'src':src,'baseUrl': baseUrl},null,2))
   if (/^\/\//.test(src)) {
     src = new URL(baseUrl).protocol + src;
   }
