@@ -719,6 +719,12 @@ class Element extends Node {
   constructor(window, tagName = 'DIV', attrs = [], value = '', location = null) {
     super(window);
 
+    for (let { name, value: v } of attrs) {
+      if (name === 'value') {
+        value = v;
+      }
+    }
+
     this.tagName = tagName;
     this.attrs = attrs;
     this.value = value;
