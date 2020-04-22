@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-- '11'
+- '12'
 env:
   matrix:
     secure: IKkxnHrFU46DF5bs1q/bldg2sAbRWAoIqHuv4ddzAgv+0Oxbg9oD8mC9DmJ77wglMt7ErLKmHxG4qImGgHTZWPTgW3oSaFkIfT32YdsLh/6tewIZmjsffjBse3yP2hpTAx2qMeCBeRTuxTqQqQ8xMuZK2i08YFnYEMJ8FSd9pJnu7FUCZ1s8sYnwHp5YctGdMLkWNVkEVyI9dAHSPsBYyC1aSEeKUOmlqUc07kJVVknG+EOX95QqGtnRIB274+Kdj64g9dX0447sRWzDM+3gK4TXKxaOqdp/YCgWtILa33u1RBwxmv4CEseRYUsr9HSHfZMaY0EPlFqSXDZD0emNVUgttnD+KyIE1Mo3pUAcc+Gkr4TePTmi+EieBw/Re5Nv3ChEBpOYL9a6GFb+MKMDzLhU6PaFQU0SaaVYkFhhpRvCr7O1Sr4Tz+814A8x32ZCEx/ER37CjB5UN0HsHgPAS4T/jNE1QC7gSX6pNBu5JQRevruWE/gZI20J6EqXR26hPhGInf175Ho4W3+GZ7Cur4sdgcXevm1mt+ZcMQEqIs0NI1TZDxfUEa3smp14fbo/ehtasTNPWwGx4hw2dgtT6/cUBzWECHExydt/e5hw41IlYKW8VW0/kC9/l+n7A/lVBbhGfV2XMXdYLcvpySAihLVou3G/rQeFGmA80Ag5vp0=
@@ -50,16 +50,16 @@ matrix:
   - os: osx
     osx_image: xcode10.1
     node_js:
-    - "12.2.0"
+    - "12.8.0"
     install:
     - npm install -g appdmg-exokit
-    - curl "https://nodejs.org/dist/v12.2.0/node-v12.2.0-darwin-x64.tar.gz" >node.tar.gz
+    - curl "https://nodejs.org/dist/v12.8.0/node-v12.8.0-darwin-x64.tar.gz" >node.tar.gz
     - tar -zxf node.tar.gz
     - rm node.tar.gz
-    - mv node-v12.2.0-darwin-x64 node
+    - mv node-v12.8.0-darwin-x64 node
     - export PATH="$(pwd)/node/bin:$PATH"
     - unset NVM_NODEJS_ORG_MIRROR
-    - "./node/bin/npm install --no-optional"
+    - "./node/bin/npm install"
     - export TEST_ENV=ci
     - "./node/bin/npm run test"
     - install_name_tool -change '@rpath/OpenVR.framework/Versions/A/OpenVR' '@loader_path/../../node_modules/native-openvr-deps/bin/osx64/OpenVR.framework/Versions/A/OpenVR'

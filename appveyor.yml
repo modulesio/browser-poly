@@ -4,7 +4,7 @@ version: 0.0.{build}
 image:
   Visual Studio 2017
 environment:
-  nodejs_version: "11"
+  nodejs_version: "12"
   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
   APPVEYOR_RDP_PASSWORD:
     secure: Fd5AowLF+Z1qAk5K/W6Avg==
@@ -27,12 +27,12 @@ test_script:
 
 after_test:
   - ps: |
-      wget "https://nodejs.org/dist/v12.2.0/node-v12.2.0-win-x64.zip" -OutFile node.zip
+      wget "https://nodejs.org/dist/v12.8.0/node-v12.8.0-win-x64.zip" -OutFile node.zip
       7z x node.zip
       rm node.zip
-      mv node-v12.2.0-win-x64 node
+      mv node-v12.8.0-win-x64 node
       $env:Path = "$pwd\node;$env:Path";
-      .\node\npm install --no-optional
+      .\node\npm install
       $env:TEST_ENV = 'ci'
       .\node\npm run test
       # bash scripts/testRun.sh
