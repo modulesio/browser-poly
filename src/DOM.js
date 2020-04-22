@@ -1579,11 +1579,60 @@ class HTMLBodyElement extends HTMLElement {
 }
 module.exports.HTMLBodyElement = HTMLBodyElement;
 
+class StyleSheet {
+  constructor(ownerNode, parentStyleSheet = null, ownerRule = null) {
+    this._ownerNode = ownerNode;
+    this._parentStyleSheet = parentStyleSheet;
+    this._ownerRule = ownerRule;
+    this.disabled = false;
+    this.title = null;
+    this.href = null;
+  }
+
+  get ownerNode() {
+    return this._ownerNode;
+  }
+
+  get parentStyleSheet() {
+    return this._parentStyleSheet;
+  }
+
+  get ownerRule() {
+    return this._ownerRule;
+  }
+
+  get media() {
+    return { mediaText: '', length: 0 }; // XXX
+  }
+
+  get cssRules() {
+    return this._ownerNode.stylesheet.rules;
+  }
+
+  get rules() {
+    return this._ownerNode.stylesheet.rules;
+  }
+}
+
+class CSSStyleSheet extends StyleSheet {
+  insertRule(rule, index = 0) {
+    const rules = css.parse(rule).stylesheet.rules;
+    if (rules[0]) {
+      this.cssRules.splice(index, 0, rules[0]);
+    }
+  }
+
+  deleteRule(index) {
+    this.cssRules.splice(index, 1);
+  }
+}
+
 class HTMLStyleElement extends HTMLLoadableElement {
   constructor(window, attrs = [], value = '', location = null) {
     super(window, 'STYLE', attrs, value, location);
 
-    this.stylesheet = null;
+    this.stylesheet = css.parse('').stylesheet;
+    this.sheet = new CSSStyleSheet(this);
 
     this.on('innerHTML', innerHTML => {
       Promise.resolve()
