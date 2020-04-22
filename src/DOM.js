@@ -1618,6 +1618,9 @@ class HTMLStyleElement extends HTMLLoadableElement {
     this.setAttribute('type', type);
   }
 
+  get innerHTML() {
+    return super.innerHTML;
+  }
   set innerHTML(innerHTML) {
     innerHTML = innerHTML + '';
     this._emit('innerHTML', innerHTML);
