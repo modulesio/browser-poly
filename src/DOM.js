@@ -391,6 +391,7 @@ const _makeChildrenProxy = el => {
   const result = [];
   result.item = i => {
     if (typeof i === 'number') {
+      result.update();
       return result[i];
     } else {
       return undefined;
@@ -398,16 +399,23 @@ const _makeChildrenProxy = el => {
   };
   result.update = () => {
     result.length = 0;
-
-    for (let i = 0; i < el.childNodes.length; i++) {
-      const childNode = el.childNodes[i];
+    for (const childNode of el.childNodes) {
       if (childNode instanceof HTMLElement) {
         result.push(childNode);
       }
     }
   };
-  result.update();
-  return result;
+
+  return new Proxy(result, {
+    get: function(e, prop) {
+      if (typeof prop === 'number') {
+        return e.item(prop);
+      } else {
+        result.update();
+        return e[prop];
+      }
+    },
+  });
 };
 
 const _cssText = style => {
