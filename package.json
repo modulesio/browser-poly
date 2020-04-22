@@ -48,6 +48,7 @@
     "@rgrove/parse-xml": "^1.1.1",
     "css": "^2.2.4",
     "events": "^3.0.0",
+    "eventsource": "^1.0.7",
     "fake-indexeddb": "^2.0.4",
     "find": "^0.2.9",
     "he": "^1.1.1",
