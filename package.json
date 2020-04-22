@@ -77,7 +77,7 @@
     "redirect-output": "^1.0.0",
     "rimraf": "^2.6.2",
     "unescape": "^1.0.1",
-    "webgl-to-opengl": "0.0.16",
+    "webgl-to-opengl": "0.0.17",
     "window-fetch": "0.0.13",
     "window-ls": "0.0.1",
     "window-selector": "0.0.8",
