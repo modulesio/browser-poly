@@ -44,7 +44,7 @@ void QueueEvent(std::function<void(std::function<void(int, Local<Value> *)>)> fn
 
     eventHandler->fns.push_back(fn);
   }
-  
+
   uv_async_send(eventHandler->async);
 }
 
@@ -177,17 +177,17 @@ void beginPlanesQuery(const MLVec3f &position, const MLQuaternionf &rotation, ML
 }
 void endPlanesQuery(MLHandle &planesHandle, MLHandle &planesQueryHandle, MLPlane *planes, uint32_t *numPlanes) {
   if (MLHandleIsValid(planesQueryHandle)) {
-    MLResult result = MLPlanesQueryGetResults(planesHandle, planesQueryHandle, planes, numPlanes);
+    MLResult result = MLPlanesQueryGetResultsWithBoundaries(planesHandle, planesQueryHandle, planes, numPlanes);
     if (result == MLResult_Ok) {
       planesQueryHandle = ML_INVALID_HANDLE;
     } else if (result == MLResult_UnspecifiedFailure) {
       planesQueryHandle = ML_INVALID_HANDLE;
 
-      ML_LOG(Error, "MLPlanesQueryGetResults failed: %d", result);
+      ML_LOG(Error, "MLPlanesQueryGetResultsWithBoundaries failed: %d", result);
     } else if (result == MLResult_Pending) {
       // nothing, we wait
     } else {
-      ML_LOG(Error, "MLPlanesQueryGetResults complained: %d", result);
+      ML_LOG(Error, "MLPlanesQueryGetResultsWithBoundaries complained: %d", result);
     }
   }
 }
@@ -234,23 +234,23 @@ inline int gestureCategoryToIndex(MLGestureStaticHandState gesture) {
 } */
 inline const char *gestureCategoryToDescriptor(MLHandTrackingKeyPose keyPose) {
   switch (keyPose) {
-    case MLGestureStaticHandState_NoHand:
+    case MLHandTrackingKeyPose_NoHand:
       return nullptr;
-    case MLGestureStaticHandState_Finger:
+    case MLHandTrackingKeyPose_Finger:
       return "finger";
-    case MLGestureStaticHandState_Fist:
+    case MLHandTrackingKeyPose_Fist:
       return "fist";
-    case MLGestureStaticHandState_Pinch:
+    case MLHandTrackingKeyPose_Pinch:
       return "pinch";
-    case MLGestureStaticHandState_Thumb:
+    case MLHandTrackingKeyPose_Thumb:
       return "thumb";
-    case MLGestureStaticHandState_L:
+    case MLHandTrackingKeyPose_L:
       return "l";
-    case MLGestureStaticHandState_OpenHandBack:
+    case MLHandTrackingKeyPose_OpenHandBack:
       return "openHandBack";
-    case MLGestureStaticHandState_Ok:
+    case MLHandTrackingKeyPose_Ok:
       return "ok";
-    case MLGestureStaticHandState_C:
+    case MLHandTrackingKeyPose_C:
       return "c";
     default:
       return nullptr;
@@ -275,7 +275,7 @@ static void onNewInitArg(void* application_context) {
   QueueEvent([=](std::function<void(int, Local<Value> *)> eventHandlerFn) -> void {
     Local<Object> obj = Nan::New<Object>();
     obj->Set(JS_STR("type"), JS_STR("newInitArg"));
-    
+
     Local<Value> argv[] = {
       obj,
     };
@@ -301,11 +301,11 @@ static void onStop(void* application_context) {
 static void onPause(void* application_context) {
   // ((struct application_context_t*)application_context)->dummy_value = DummyValue::PAUSED;
   ML_LOG(Info, "%s: On pause called.", application_name);
-  
+
   QueueEvent([=](std::function<void(int, Local<Value> *)> eventHandlerFn) -> void {
     Local<Object> obj = Nan::New<Object>();
     obj->Set(JS_STR("type"), JS_STR("pause"));
-    
+
     Local<Value> argv[] = {
       obj,
     };
@@ -316,11 +316,11 @@ static void onPause(void* application_context) {
 static void onResume(void* application_context) {
   // ((struct application_context_t*)application_context)->dummy_value = DummyValue::RUNNING;
   ML_LOG(Info, "%s: On resume called.", application_name);
-  
+
   QueueEvent([=](std::function<void(int, Local<Value> *)> eventHandlerFn) -> void {
     Local<Object> obj = Nan::New<Object>();
     obj->Set(JS_STR("type"), JS_STR("resume"));
-    
+
     Local<Value> argv[] = {
       obj,
     };
@@ -331,11 +331,11 @@ static void onResume(void* application_context) {
 static void onUnloadResources(void* application_context) {
   // ((struct application_context_t*)application_context)->dummy_value = DummyValue::STOPPED;
   ML_LOG(Info, "%s: On unload resources called.", application_name);
-  
+
   QueueEvent([=](std::function<void(int, Local<Value> *)> eventHandlerFn) -> void {
     Local<Object> obj = Nan::New<Object>();
     obj->Set(JS_STR("type"), JS_STR("unloadResources"));
-    
+
     Local<Value> argv[] = {
       obj,
     };
@@ -353,11 +353,11 @@ MLMat4f getWindowTransformMatrix(Local<Object> windowObj, bool inverse = true) {
     MLVec3f position;
     memcpy(position.values, (char *)positionFloat32Array->Buffer()->GetContents().Data() + positionFloat32Array->ByteOffset(), sizeof(position.values));
     position.y += largestFloorY;
-    
+
     Local<Float32Array> orientationFloat32Array = Local<Float32Array>::Cast(xrOffsetObj->Get(JS_STR("orientation")));
     MLQuaternionf orientation;
     memcpy(orientation.values, (char *)orientationFloat32Array->Buffer()->GetContents().Data() + orientationFloat32Array->ByteOffset(), sizeof(orientation.values));
-    
+
     Local<Float32Array> scaleFloat32Array = Local<Float32Array>::Cast(xrOffsetObj->Get(JS_STR("scale")));
     MLVec3f scale;
     memcpy(scale.values, (char *)scaleFloat32Array->Buffer()->GetContents().Data() + scaleFloat32Array->ByteOffset(), sizeof(scale.values));
@@ -427,7 +427,7 @@ NAN_METHOD(MLRaycaster::New) {
 
   MLVec3f position;
   memcpy(position.values, (char *)originFloat32Array->Buffer()->GetContents().Data() + originFloat32Array->ByteOffset(), sizeof(raycastQuery.position.values));
-  
+
   MLVec3f direction;
   memcpy(direction.values, (char *)directionFloat32Array->Buffer()->GetContents().Data() + directionFloat32Array->ByteOffset(), sizeof(raycastQuery.direction.values));
 
@@ -439,7 +439,7 @@ NAN_METHOD(MLRaycaster::New) {
 
 NAN_METHOD(MLRaycaster::WaitGetPoses) {
   MLRaycaster *mlRaycaster = ObjectWrap::Unwrap<MLRaycaster>(info.This());
-  
+
   MLRaycastResult raycastResult;
   MLResult result = MLRaycastGetResult(mlRaycaster->tracker, mlRaycaster->requestHandle, &raycastResult);
   if (result == MLResult_Ok) {
@@ -464,7 +464,7 @@ NAN_METHOD(MLRaycaster::WaitGetPoses) {
     info.GetReturnValue().Set(Nan::Null());
   } else {
     ML_LOG(Error, "%s: Raycast request failed! %x", application_name, result);
-    
+
     Local<Array> result = Nan::New<Array>(0);
     info.GetReturnValue().Set(result);
   }
@@ -566,7 +566,7 @@ MLMesher::~MLMesher() {}
 NAN_METHOD(MLMesher::New) {
   float range = TO_FLOAT(info[0]);
   int lodValue = TO_INT32(info[1]);
-  
+
   MLMeshingLOD lod;
   switch (lodValue) {
     case 1: {
@@ -586,7 +586,7 @@ NAN_METHOD(MLMesher::New) {
       break;
     }
   }
-  
+
   MLMesher *mlMesher = new MLMesher(range, lod);
   Local<Object> mlMesherObj = info.This();
   mlMesher->Wrap(mlMesherObj);
@@ -756,7 +756,7 @@ NAN_METHOD(MLMesher::WaitGetPoses) {
     } else {
       mlMesher->meshInfoMap.clear();
       MLMeshingFreeResource(mlMesher->tracker, &mlMesher->meshInfoRequestHandle);
-      
+
       mlMesher->meshRequestsPending = false;
       mlMesher->meshRequestPending = false;
     }
@@ -817,12 +817,12 @@ NAN_METHOD(MLMesher::WaitGetPoses) {
             memcpy(indexArrayBuffer->GetContents().Data(), blockMesh.index, blockMesh.index_count * sizeof(uint16_t));
             obj->Set(JS_STR("indexArray"), indexArray);
             // obj->Set(JS_STR("count"), JS_INT(blockMesh.index_count));
-            
+
             MLVec3f position = mlContext->OffsetFloor(MLVec3f{0, 0, 0}); // {0, 0, 0};
             MLQuaternionf rotation = {0, 0, 0, 1};
             MLVec3f scale = {1, 1, 1};
             MLMat4f transform = composeMatrix(position, rotation, scale);
-            
+
             Local<ArrayBuffer> transformMatrixArrayBuffer = ArrayBuffer::New(Isolate::GetCurrent(), 16 * sizeof(float));
             Local<Float32Array> transformMatrixArray = Float32Array::New(transformMatrixArrayBuffer, 0, 16);
             float *transformMatrixData = (float *)((char *)transformMatrixArrayBuffer->GetContents().Data());
@@ -973,7 +973,7 @@ NAN_METHOD(MLPlaneTracker::WaitGetPoses) {
   if (mlPlaneTracker->planesRequestPending) {
     MLPlane planeResults[MAX_NUM_PLANES];
     uint32_t numPlanesResults;
-    MLResult result = MLPlanesQueryGetResults(mlPlaneTracker->tracker, mlPlaneTracker->planesRequestHandle, planeResults, &numPlanesResults);
+    MLResult result = MLPlanesQueryGetResultsWithBoundaries(mlPlaneTracker->tracker, mlPlaneTracker->planesRequestHandle, planeResults, &numPlanesResults);
     if (result == MLResult_Ok) {
       std::vector<std::string> currentPlaneIds(numPlanesResults);
       for (uint32_t i = 0; i < numPlanesResults; i++) {
@@ -1011,7 +1011,7 @@ NAN_METHOD(MLPlaneTracker::WaitGetPoses) {
         bool added = false;
         bool removed = false;
         bool updated = false;
-        
+
         const char *typeString;
         if ((added = (addedPlaneIds.find(id) != addedPlaneIds.end()))) {
           typeString = "planeadd";
@@ -1030,7 +1030,7 @@ NAN_METHOD(MLPlaneTracker::WaitGetPoses) {
           const MLVec3f &position = mlContext->OffsetFloor(plane.position);
           const MLQuaternionf &rotation = plane.rotation;
           const MLVec3f &normal = applyVectorQuaternion(MLVec3f{0, 0, 1}, rotation);
-          
+
           Local<ArrayBuffer> arrayBuffer = ArrayBuffer::New(Isolate::GetCurrent(), sizeof(position.values)+sizeof(normal.values)+sizeof(width)+sizeof(height));
           char *arrayBufferData = (char *)arrayBuffer->GetContents().Data();
           size_t index = 0;
@@ -1437,7 +1437,7 @@ NAN_METHOD(MLHandTracker::WaitGetPoses) {
           // MLHandTrackingKeyPose &keypose = handDataState.keypose;
         }
       }
-      
+
       if (MLPerceptionReleaseSnapshot(snapshot) != MLResult_Ok) {
         ML_LOG(Error, "%s: ML failed to release hand snapshot!", application_name);
       }
@@ -1509,7 +1509,7 @@ NAN_METHOD(MLEyeTracker::WaitGetPoses) {
   if (MLEyeTrackingGetState(mlEyeTracker->tracker, &eyeState) != MLResult_Ok) {
     ML_LOG(Error, "%s: Eye get state failed!", application_name);
   }
-  
+
   MLSnapshot *snapshot;
   if (MLPerceptionGetSnapshot(&snapshot) != MLResult_Ok) {
     ML_LOG(Error, "%s: ML failed to get eye snapshot!", application_name);
@@ -1537,7 +1537,7 @@ NAN_METHOD(MLEyeTracker::WaitGetPoses) {
   if (MLPerceptionReleaseSnapshot(snapshot) != MLResult_Ok) {
     ML_LOG(Error, "%s: ML failed to release eye snapshot!", application_name);
   }
-  
+
   ML_LOG(Error, "MLEyeTracker::WaitGetPoses 9");
 }
 
@@ -1561,7 +1561,7 @@ NAN_METHOD(MLEyeTracker::WaitGetPoses) {
     ML_LOG(Error, "%s: ML failed to get right eye center transform!", application_name);
   }
   this->rightBlink = eyeState.right_blink;
-  
+
   MLMat4f transformMatrix = getWindowTransformMatrix(Nan::New(this->windowObj));
 
   if (!isIdentityMatrix(transformMatrix)) {
@@ -1907,7 +1907,7 @@ void onChar(uint32_t char_utf32, void *data) {
     Local<Object> obj = Nan::New<Object>();
     obj->Set(JS_STR("type"), JS_STR("keypress"));
     setKeyEvent(obj, char_utf32, MLKEYCODE_UNKNOWN, 0);
-    
+
     Local<Value> argv[] = {
       obj,
     };
@@ -1919,7 +1919,7 @@ void onKeyDown(MLKeyCode key_code, uint32_t modifier_mask, void *data) {
     Local<Object> obj = Nan::New<Object>();
     obj->Set(JS_STR("type"), JS_STR("keydown"));
     setKeyEvent(obj, 0, key_code, modifier_mask);
-    
+
     Local<Value> argv[] = {
       obj,
     };
@@ -1931,7 +1931,7 @@ void onKeyUp(MLKeyCode key_code, uint32_t modifier_mask, void *data) {
     Local<Object> obj = Nan::New<Object>();
     obj->Set(JS_STR("type"), JS_STR("keyup"));
     setKeyEvent(obj, 0, key_code, modifier_mask);
-    
+
     Local<Value> argv[] = {
       obj,
     };
@@ -2260,7 +2260,7 @@ NAN_METHOD(MLImageTracker::Destroy) {
       if (result != MLResult_Ok) {
         ML_LOG(Error, "%s: ML failed to remove image tracker target!", application_name);
       }
-      
+
       delete i;
       return true;
     } else {
@@ -2332,16 +2332,16 @@ void RunEventsInMainThread(uv_async_t *async) {
 
     localFns = std::move(eventHandler->fns);
     eventHandler->fns.clear();
-    
+
     handlerFn = Nan::New(eventHandler->handlerFn);
-  } 
+  }
   for (auto iter = localFns.begin(); iter != localFns.end(); iter++) {
     Nan::HandleScope scope;
 
     (*iter)([&](int argc, Local<Value> *argv) -> void {
       Local<Object> asyncObject = Nan::New<Object>();
       AsyncResource asyncResource(Isolate::GetCurrent(), asyncObject, "mlEvents");
-      
+
       asyncResource.MakeCallback(handlerFn, argc, argv);
     });
   }
@@ -2354,7 +2354,7 @@ void RunEventsInMainThread(uv_async_t *async) {
     MLHandle output;
     MLResult result = MLCameraGetPreviewStream(&output);
 
-    if (result == MLResult_Ok) {    
+    if (result == MLResult_Ok) {
       // ANativeWindowBuffer_t *aNativeWindowBuffer = (ANativeWindowBuffer_t *)output;
       //
       MLContext *mlContext = application_context.mlContext;
@@ -2592,7 +2592,7 @@ NAN_METHOD(MLContext::SetEventHandler) {
 
     {
       std::lock_guard<std::mutex> lock(eventHandlerMutex);
-      
+
       uv_async_t *async = new uv_async_t();
       uv_loop_t *loop = windowsystembase::GetEventLoop();
       uv_async_init(loop, async, RunEventsInMainThread);
@@ -2616,9 +2616,9 @@ NAN_METHOD(MLContext::Present) {
 
   application_context.mlContext = mlContext;
   application_context.window = window;
-   
+
   // initialize perception system
-  
+
   MLPerceptionSettings perception_settings;
   if (MLPerceptionInitSettings(&perception_settings) != MLResult_Ok) {
     ML_LOG(Error, "%s: Failed to initialize perception.", application_name);
@@ -2648,7 +2648,7 @@ NAN_METHOD(MLContext::Present) {
       return;
     }
   }
-  
+
   glGenFramebuffers(1, &application_context.mlContext->dst_framebuffer_id);
 
   // Now that graphics is connected, the app is ready to go
@@ -2657,7 +2657,7 @@ NAN_METHOD(MLContext::Present) {
     info.GetReturnValue().Set(Nan::Null());
     return;
   }
-  
+
   // initialize local graphics stack
 
   // windowsystem::SetCurrentWindowContext(window);
@@ -3004,7 +3004,7 @@ NAN_METHOD(MLContext::Exit) {
     GLuint framebuffer = TO_UINT32(info[1]);
     GLuint width = TO_UINT32(info[2]);
     GLuint height = TO_UINT32(info[3]);
-    
+
     Local<Float32Array> transformFloat32Array = Local<Float32Array>::Cast(info[4]);
     Local<Float32Array> projectionFloat32Array = Local<Float32Array>::Cast(info[5]);
     Local<Float32Array> controllersFloat32Array = Local<Float32Array>::Cast(info[6]);
@@ -3176,7 +3176,7 @@ NAN_METHOD(MLContext::Exit) {
   }
 } */
 
-NAN_METHOD(MLContext::WaitGetPoses) {  
+NAN_METHOD(MLContext::WaitGetPoses) {
   if (info[0]->IsFloat32Array() && info[1]->IsFloat32Array() && info[2]->IsFloat32Array()) {
     MLContext *mlContext = ObjectWrap::Unwrap<MLContext>(info.This());
     Local<Float32Array> transformFloat32Array = Local<Float32Array>::Cast(info[0]);
@@ -3188,7 +3188,7 @@ NAN_METHOD(MLContext::WaitGetPoses) {
     float *controllersArray = (float *)((char *)controllersFloat32Array->Buffer()->GetContents().Data() + controllersFloat32Array->ByteOffset());
 
     // windowsystem::SetCurrentWindowContext(gl->windowHandle);
-    
+
     MLGraphicsFrameParams frame_params;
     MLResult result = MLGraphicsInitFrameParams(&frame_params);
     if (result != MLResult_Ok) {
@@ -3217,7 +3217,7 @@ NAN_METHOD(MLContext::WaitGetPoses) {
         glClear(GL_COLOR_BUFFER_BIT);
       }
       glDeleteFramebuffers(1, &fbo); */
-      
+
       mlContext->TickFloor();
 
       // transform
@@ -3238,7 +3238,7 @@ NAN_METHOD(MLContext::WaitGetPoses) {
           projectionArray[i*16 + j] = projection.matrix_colmajor[j];
         }
       }
-      
+
       // position
       {
         // std::unique_lock<std::mutex> lock(mlContext->positionMutex);
@@ -3247,7 +3247,7 @@ NAN_METHOD(MLContext::WaitGetPoses) {
         mlContext->position = leftCameraTransform.position;
         mlContext->rotation = leftCameraTransform.rotation;
       }
-      
+
       // controllers
       MLInputControllerState controllerStates[MLInput_MaxControllers];
       result = MLInputGetControllerState(mlContext->inputTracker, controllerStates);
@@ -3286,7 +3286,7 @@ NAN_METHOD(MLContext::WaitGetPoses) {
     } else {
       ML_LOG(Error, "MLGraphicsBeginFrame complained: %d", result);
     }
-    
+
     info.GetReturnValue().Set(JS_BOOL(frameOk));
   } else {
     Nan::ThrowError("MLContext::WaitGetPoses: invalid arguments");
@@ -3301,9 +3301,9 @@ NAN_METHOD(MLContext::WaitGetPoses) {
       GLuint framebuffer = TO_UINT32(info[1]);
       GLuint width = TO_UINT32(info[2]);
       GLuint height = TO_UINT32(info[3]);
-      
+
       windowsystem::SetCurrentWindowContext(gl->windowHandle);
-      
+
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
 
       glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -3372,7 +3372,7 @@ NAN_METHOD(MLContext::WaitGetPoses) {
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
       }
     }
-    
+
     // info.GetReturnValue().Set(JS_BOOL(true));
   } else {
     Nan::ThrowError("MLContext::PrepareFrame: invalid arguments");
@@ -3389,7 +3389,7 @@ NAN_METHOD(MLContext::SubmitFrame) {
     unsigned int height = TO_UINT32(info[2]);
 
     const MLRectf &viewport = application_context.mlContext->virtual_camera_array.viewport;
-    
+
     glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, application_context.mlContext->dst_framebuffer_id);
 
@@ -3403,7 +3403,7 @@ NAN_METHOD(MLContext::SubmitFrame) {
         viewport.w, viewport.h,
         GL_COLOR_BUFFER_BIT,
         GL_LINEAR);
-      
+
       MLGraphicsVirtualCameraInfo &camera = application_context.mlContext->virtual_camera_array.virtual_cameras[i];
       MLResult result = MLGraphicsSignalSyncObjectGL(application_context.mlContext->graphics_client, camera.sync_object);
       if (result != MLResult_Ok) {
@@ -3446,7 +3446,7 @@ NAN_METHOD(MLContext::GetSize) {
   unsigned int halfWidth = mlContext->render_targets_info.buffers[0].color.width;
   // unsigned int width = halfWidth * 2;
   unsigned int height = mlContext->render_targets_info.buffers[0].color.height;
-  
+
   Local<Object> result = Nan::New<Object>();
   result->Set(JS_STR("width"), JS_INT(halfWidth));
   result->Set(JS_STR("height"), JS_INT(height));
@@ -3564,7 +3564,7 @@ NAN_METHOD(MLContext::RequestEyeTracking) {
   if (mlContext->mlEyeTrackerConstructor.IsEmpty()) {
     mlContext->mlEyeTrackerConstructor.Reset(MLEyeTracker::Initialize(Isolate::GetCurrent()));
   }
-  
+
   Local<Function> mlEyeTrackerCons = Nan::New(mlContext->mlEyeTrackerConstructor);
   /* Local<Value> argv[] = {
     info[0],
@@ -3688,7 +3688,7 @@ NAN_METHOD(MLContext::Update) {
       i->Update(snapshot);
     });
   }
-  
+
   if (snapshot) {
     if (MLPerceptionReleaseSnapshot(snapshot) != MLResult_Ok) {
       ML_LOG(Error, "%s: ML failed to release eye snapshot!", application_name);
@@ -3706,7 +3706,7 @@ NAN_METHOD(MLContext::Update) {
 
 void MLContext::TickFloor() {
   if (floorRequestPending) {
-    MLResult result = MLPlanesQueryGetResults(floorTracker, floorRequestHandle, floorResults, &numFloorResults);
+    MLResult result = MLPlanesQueryGetResultsWithBoundaries(floorTracker, floorRequestHandle, floorResults, &numFloorResults);
     if (result == MLResult_Ok) {
       for (uint32_t i = 0; i < numFloorResults; i++) {
         const MLPlane &plane = floorResults[i];
@@ -3730,7 +3730,7 @@ void MLContext::TickFloor() {
       floorRequestPending = false;
     }
   }
-  
+
   if (!floorRequestPending) {
     {
       // std::unique_lock<std::mutex> lock(mlContext->positionMutex);

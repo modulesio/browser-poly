@@ -37,7 +37,6 @@
 #include <ml_privilege_functions.h>
 #include <ml_input.h>
 #include <ml_raycast.h>
-#include <ml_gesture.h>
 #include <ml_lifecycle.h>
 #include <ml_logging.h>
 
@@ -125,7 +124,7 @@ public:
 public:
   Nan::Persistent<Object> windowObj;
   std::function<void()> cb;
-  
+
   MLPoll(Local<Object> windowObj, std::function<void()> cb);
   ~MLPoll();
 }; */
